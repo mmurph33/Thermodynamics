@@ -49,7 +49,7 @@ def get_substance_parameters(substance):
     substance = substance.strip().lower()
     
     # Define the path to your SQLite database
-    DB_PATH = "/Users/mattmurphy/Thermo Program/Thermo/db/properties_of_substances.db"
+    DB_PATH = "/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/db/properties_of_substances.db"
     
     # Connect to the SQLite database
     conn = sqlite3.connect(DB_PATH)
