@@ -1,9 +1,9 @@
-# Thermo
- Thermodynamics Helper Program
+# Thermodynamics_Assistant
+Thermodynamics Helper Program
 
 ## Peng-Robinson Module
 
-The Peng-Robinson module provides a set of functions to calculate thermodynamic properties using the Peng-Robinson equation of state. This module aids in the determination of various parameters such as compressibility factor, enthalpy departure, entropy departure, and more for a given substance under specific conditions.
+The Peng-Robinson module in Thermodynamics_Assistant provides a set of functions to calculate thermodynamic properties using the Peng-Robinson equation of state. This module aids in the determination of various parameters such as compressibility factor, enthalpy departure, entropy departure, and more for a given substance under specific conditions.
 
 ### Features:
 
