@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Peng Robinson Tool</title>
+</head>
+<body>
+
+<h1>Peng Robinson Tool</h1>
+
+<form action="/" method="post">
+    <label for="substance">Select a Substance:</label>
+    <input type="text" name="substance" required>
+    <input type="submit" value="Compute">
+</form>
+
+{% if result %}
+    <h2>Results</h2>
+    <p>{{ result }}</p>
+{% endif %}
+
+</body>
+</html>
