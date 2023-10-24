@@ -7,7 +7,7 @@ from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as FigureCanva
 import matplotlib.pyplot as plt
 sys.path.append('/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/src')
 
-from peng_rob.core import (get_substance_parameters, calculate_parameters, roots_of_Z)
+from peng_rob.core import *
 
 
 
