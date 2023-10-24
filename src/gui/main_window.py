@@ -15,68 +15,54 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle('Roots of Z using Peng-Robinson EOS')
+        self.setWindowTitle('Thermodynamics Assistant')
         self.setGeometry(100, 100, 1000, 800)
 
         layout = QVBoxLayout()
 
-        # Input fields
-        form_layout = QFormLayout()
-        self.substance_input = QLineEdit(self)
-        self.temperature_input = QLineEdit(self)
-        self.pressure_input = QLineEdit(self)
-        form_layout.addRow('Substance:', self.substance_input)
-        form_layout.addRow('Temperature (K):', self.temperature_input)
-        form_layout.addRow('Pressure (Pa):', self.pressure_input)
+        # Problem selection buttons
+        self.molar_volume_button = QPushButton('Solve for Molar Volume', self)
+        self.molar_volume_button.clicked.connect(self.solve_molar_volume)
 
-        # Plot button
-        self.plot_button = QPushButton('Calculate & Plot', self)
-        self.plot_button.clicked.connect(self.plot_roots_of_Z)
+        self.enthalpy_button = QPushButton('Find Change in Enthalpy Using PREOS', self)
+        self.enthalpy_button.clicked.connect(self.solve_enthalpy)
 
-        # Output field
-        self.molar_volume_label = QLabel("Molar Volume: Not Calculated", self)
+        self.entropy_button = QPushButton('Find Change in Entropy Using PREOS', self)
+        self.entropy_button.clicked.connect(self.solve_entropy)
 
-        # Matplotlib Figure and Canvas
-        self.figure, self.ax = plt.subplots()
-        self.canvas = FigureCanvas(self.figure)
-        self.toolbar = NavigationToolbar(self.canvas, self)
+        self.vapor_pressure_button = QPushButton('Find Vapor Pressure in Phase Equilibrium', self)
+        self.vapor_pressure_button.clicked.connect(self.solve_vapor_pressure)
 
-        # Add to layout
-        layout.addLayout(form_layout)
-        layout.addWidget(self.plot_button)
-        layout.addWidget(self.molar_volume_label)
-        layout.addWidget(self.toolbar)
-        layout.addWidget(self.canvas)
+        self.thermo_properties_button = QPushButton('Find Thermodynamics Properties of a Substance', self)
+        self.thermo_properties_button.clicked.connect(self.solve_thermo_properties)
+
+        # Add buttons to layout
+        layout.addWidget(self.molar_volume_button)
+        layout.addWidget(self.enthalpy_button)
+        layout.addWidget(self.entropy_button)
+        layout.addWidget(self.vapor_pressure_button)
+        layout.addWidget(self.thermo_properties_button)
 
         central_widget = QWidget()
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-    def plot_roots_of_Z(self):
-        substance = self.substance_input.text()
-        T = float(self.temperature_input.text())
-        P = float(self.pressure_input.text())
+    # Placeholder methods for each problem-solving option
+    def solve_molar_volume(self):
+        pass
 
-        T_C, P_C, omega = get_substance_parameters(substance)
+    def solve_enthalpy(self):
+        pass
 
-        if T_C and P_C and omega:
-            a_val, b_val, A_val, B_val = calculate_parameters(T, T_C, P_C, omega, P)
-            Z_roots = roots_of_Z(A_val, B_val)
-            
-            # Plotting
-            self.ax.clear()
-            P_array = [P] * len(Z_roots)
-            self.ax.plot(P_array, Z_roots, 'o')
-            self.ax.set_xlabel('Pressure (Pa)')
-            self.ax.set_ylabel('Z')
-            self.ax.set_title('Roots of Compressibility Factor (Z) vs Pressure')
-            self.canvas.draw()
+    def solve_entropy(self):
+        pass
 
-            # Assuming you want to use the largest Z root for molar volume
-            Z = max(Z_roots)
-            R = 8.314  # Universal gas constant in J/(mol·K)
-            V = Z * R * T / P
-            self.molar_volume_label.setText(f"Molar Volume: {V:.5f} m^3/mol")
+    def solve_vapor_pressure(self):
+        pass
+
+    def solve_thermo_properties(self):
+        pass
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

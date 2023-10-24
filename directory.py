@@ -1,26 +1,31 @@
 import os
 
-def list_files(startpath):
-    ignore_items = ['.DS_Store', '__pycache__', '.git']
-    for root, dirs, files in os.walk(startpath):
-        # Remove ignored directories from the list so they won't be traversed
-        dirs[:] = [d for d in dirs if d not in ignore_items]
+def generate_tree(directory, prefix=""):
+    """
+    Generate a directory tree representation for the specified directory.
+    
+    :param directory: The root directory to generate the tree for.
+    :param prefix: The current prefix (used for recursion).
+    :return: A string representation of the directory tree.
+    """
+    tree = prefix + '├── ' + os.path.basename(directory) + '/\n'
+    if os.path.isdir(directory):
+        items = [item for item in os.listdir(directory) if item != '__pycache__']
         
-        # Calculate the depth level of the current directory
-        level = root.replace(startpath, '').count(os.sep)
-        indent = ' ' * 4 * level
+        # If the directory is `.git`, print it as a single entity and skip processing its children.
+        if os.path.basename(directory) == '.git':
+            return tree
         
-        # Print the directory name
-        print('{}{}/'.format(indent, os.path.basename(root)))
-        
-        # Calculate the sub-indentation for the files
-        subindent = ' ' * 4 * (level + 1)
-        
-        # Print the files in the directory
-        for f in files:
-            if f not in ignore_items:
-                print('{}{}'.format(subindent, f))
+        for index, item in enumerate(sorted(items)):
+            item_path = os.path.join(directory, item)
+            if index == len(items) - 1:
+                # Last item, so adjust the prefix accordingly
+                tree += generate_tree(item_path, prefix + '    ')
+            else:
+                tree += generate_tree(item_path, prefix + '│   ')
+    
+    return tree
 
-# Set your start path
-start_path = '.'  # Current directory
-list_files(start_path)
+# Test
+directory_path = "/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/"
+print(generate_tree(directory_path))
