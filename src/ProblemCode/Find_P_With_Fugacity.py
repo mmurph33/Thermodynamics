@@ -73,7 +73,7 @@ Examples:
 import sys
 import numpy as np
 import math
-from src.core import PengRobinsonEOS, DatabaseHandler
+from .core import PengRobinsonEOS, DatabaseHandler
 import math
 
 def phi(Z, A_val, B_val):
