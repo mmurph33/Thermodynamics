@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./src/peng_rob"
+    ]
+}

@@ -1,18 +1,17 @@
 import sys
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit, QFormLayout, QTextBrowser 
+from PyQt5.QtGui import QFont, QPalette, QColor, QPixmap, QImage, QLinearGradient
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QPalette, QColor, QPainter, QLinearGradient, QTextCursor, QImage, QPixmap
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit, QFormLayout, QTextBrowser
 sys.path.append('/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/src')
 from ProblemCode.Find_P_With_Fugacity import find_pressure
+import matplotlib.pyplot as plt
+import matplotlib
 matplotlib.use('Agg')  # Set the backend to Agg
+import pprint as pp
+from ProblemCode.grapher import Grapher
 
 
 
-# ... [rest of your previous imports and code]
 class VaporPressureWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -41,63 +40,72 @@ class VaporPressureWindow(QWidget):
         self.results_layout = QVBoxLayout()
         self.layout.addLayout(self.results_layout)
         self.setLayout(self.layout)
-
-    def _create_result_widget(self, P_in_MPa, result):
-        """Utility function to create a result widget for a given result dictionary."""
-        widget = QWidget(self)
-        layout = QVBoxLayout()
-
-        layout.addWidget(QLabel(f"Pressure: {P_in_MPa:.5f} MPa"))
         
+        self.setAutoFillBackground(True)
+        palette = self.palette()
+        palette.setColor(self.backgroundRole(), QColor("#8C1515"))  # CMU Cardinal Red
+        self.setPalette(palette)
+
+        # Set font for the window
+        font = QFont("Times New Roman", 12)
+        self.setFont(font)
+
+        # Style other widgets, like QLineEdit and QLabel, with the gray color
+        self.temperature_input.setStyleSheet("color: #AAA9A9;")  # CMU Gray
+        self.substance_input.setStyleSheet("color: #AAA9A9;")
+
+    def create_table(self, result):
         table = QTableWidget()
         table.setRowCount(1)
         table.setColumnCount(len(result) - 3)  # excluding 'iteration', 'is_correct', and 'P'
-        table.setHorizontalHeaderLabels([key for key in result.keys() if key not in ['iteration', 'is_correct', 'P']])
+        table.setHorizontalHeaderLabels([k for k in result if k not in ['iteration', 'is_correct', 'P']])
         table.verticalHeader().setVisible(False)
-        for col_idx, (key, value) in enumerate([(k, v) for k, v in result.items() if k not in ['iteration', 'is_correct', 'P']]):
-            table.setItem(0, col_idx, QTableWidgetItem(f"{value:.4f}"))
+        for col_idx, value in enumerate(v for k, v in result.items() if k not in ['iteration', 'is_correct', 'P']):
+            table.setItem(0, col_idx, QTableWidgetItem(f"{value:.6f}"))
         table.resizeColumnsToContents()
+        return table
 
+    def _create_result_widget(self, P_in_MPa, result):
+        widget = QWidget(self)
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel(f"Pressure: {P_in_MPa:.5f} MPa"))
+        table = self.create_table(result)
         layout.addWidget(table)
 
-        if not result['is_correct']:
-            latex_str = r"\phi^V \neq \phi^L, \text{so we will try a new pressure.} \; P_{\text{new}} = P_{\text{old}} \times \frac{\phi^L}{\phi^V}"
-            pixmap = self.latex_to_QPixmap(latex_str)
-            label = QLabel(self)
-            label.setPixmap(pixmap)
-            layout.addWidget(label)
+        # Graph the isotherm and pressure
+        grapher = Grapher(self.substance_input.text())
+        grapher.graph_isotherm(result['T'], P_in_MPa)
 
         widget.setLayout(layout)
-
         return widget
 
 
 
     def latex_to_QPixmap(self, latex_str, fs=12):
         try:
-            # Use LaTeX's default 'Computer Modern' font
+            # Set font and colors using matplotlib rcParams
             plt.rcParams['mathtext.fontset'] = 'cm'
             plt.rcParams['mathtext.rm'] = 'serif'
-
-            # Create a figure and axis for rendering
-            fig, ax = plt.subplots(figsize=(4, .40), dpi=120)
+            plt.rcParams['font.family'] = 'Times New Roman'
+            plt.rcParams['text.color'] = "#AAA9A9"  # CMU Gray
             
-            # Set dark background and white text
-            fig.patch.set_facecolor('#2f2f2f')  # Dark grey color for background
-            ax.set_facecolor('#2f2f2f')
+            # Create a figure with the specified DPI
+            fig, ax = plt.subplots(figsize=(4, .4), dpi=150)
             
-            # Render LaTeX in white
-            ax.text(0.5, 0.5, f"${latex_str}$", size=fs, ha="center", va="center", color='white')
+            # Set background color
+            fig.patch.set_facecolor('#8C1515')  # CMU Cardinal Red
+            ax.set_facecolor('#8C1515')
+            
+            # Render LaTeX
+            ax.text(0.5, 0.5, f"${latex_str}$", size=fs, ha="center", va="center", color='#AAA9A9')  # CMU Gray
             ax.axis("off")
 
-            # Adjust the margins to make sure the text fits
+            # Adjust margins to ensure text fits
             plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05)
-
-            # Draw the figure and retrieve the RGBA buffer
+            
             fig.canvas.draw()
             buf = fig.canvas.buffer_rgba()
             
-            # Convert to a QImage and then QPixmap
             qimage = QImage(buf, buf.shape[1], buf.shape[0], QImage.Format_RGBA8888)
             qpixmap = QPixmap.fromImage(qimage)
             
@@ -106,13 +114,66 @@ class VaporPressureWindow(QWidget):
         except Exception as e:
             print(f"Error rendering LaTeX: {e}")
             return QPixmap()
+
     
+
+    # ... [rest of your code]
     def calculate_vapor_pressure(self):
+        T = float(self.temperature_input.text())
+        substance = self.substance_input.text()
+        
+
+        # Fetch the results from the find_pressure function
+        results = find_pressure(T, substance)
+        pp.pprint(results)
+
+        # Clear previous results
+        for i in reversed(range(self.results_layout.count())): 
+            self.results_layout.itemAt(i).widget().setParent(None)
+
+        # Display the results in a table for each iteration
+        last_six_results = results[-6:]  # Get the last 6 iterations
+        half_length = len(last_six_results) // 2  # Used to split the results into two columns
+        for idx in range(half_length):
+            # Container for the two columns
+            h_layout = QHBoxLayout()
+
+            # First column
+            result1 = last_six_results[idx]
+            P_in_MPa1 = result1['P']
+            h_layout.addWidget(self._create_result_widget(P_in_MPa1, result1))
+
+            # Check if there's a corresponding result in the second column
+            if idx + half_length < len(last_six_results):
+                result2 = last_six_results[idx + half_length]
+                P_in_MPa2 = result2['P']
+                h_layout.addWidget(self._create_result_widget(P_in_MPa2, result2))
+
+            # Add the horizontal layout to the main layout
+            self.results_layout.addLayout(h_layout)
+
+        P_final = results[-1]['P']
+        latex_str = fr"\text{{Pressure }} ({P_final:.5f} \text{{ MPa}}) \text{{ is correct since }} \phi^V = \phi^L."
+        pixmap = self.latex_to_QPixmap(latex_str)
+
+        # Creating a QLabel to display the pixmap
+        label = QLabel(self)
+        label.setPixmap(pixmap)
+        label.setAlignment(Qt.AlignCenter)  # Center the QLabel
+
+        # Use QHBoxLayout to center the QLabel in the QVBoxLayout
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(label)
+
+        self.results_layout.addLayout(h_layout)
+
+    """ def calculate_vapor_pressure(self):
         T = float(self.temperature_input.text())
         substance = self.substance_input.text()
 
         # Fetch the results from the find_pressure function
         results = find_pressure(T, substance)
+        pp.pprint(results)
 
         # Clear previous results
         for i in reversed(range(self.results_layout.count())): 
@@ -131,13 +192,13 @@ class VaporPressureWindow(QWidget):
         for idx in range(half_length):
             # First column
             result1 = results[idx]
-            P_in_MPa1 = result1['P'] / 1e6
+            P_in_MPa1 = result1['P']
             left_vlayout.addWidget(self._create_result_widget(P_in_MPa1, result1))
 
             # Check if there's a corresponding result in the second column
             if idx + half_length < len(results):
                 result2 = results[idx + half_length]
-                P_in_MPa2 = result2['P'] / 1e6
+                P_in_MPa2 = result2['P']
                 right_vlayout.addWidget(self._create_result_widget(P_in_MPa2, result2))
 
         # Add the left and right QVBoxLayouts to the main QHBoxLayout
@@ -146,9 +207,10 @@ class VaporPressureWindow(QWidget):
 
         # Add the main QHBoxLayout to the main results layout
         self.results_layout.addLayout(main_hlayout)
-        self.results_layout.addWidget(QLabel("Pressure is correct since phi^V = phi^L."))
+        self.results_layout.addWidget(QLabel(f"Pressure ({results[-1]['P']:.5f} MPa) is correct since phi^V = phi^L."))
 
-# ... [rest of your code]
+ """
+
 
 
 
