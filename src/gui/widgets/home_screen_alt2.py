@@ -66,16 +66,30 @@ class VaporPressureWindow(QWidget):
 
         layout.addWidget(QLabel(f"Pressure: {P_in_MPa:.5f} MPa"))
         
-        table = QTableWidget()
-        table.setRowCount(1)
-        table.setColumnCount(len(result) - 3)  # excluding 'iteration', 'is_correct', and 'P'
-        table.setHorizontalHeaderLabels([key for key in result.keys() if key not in ['iteration', 'is_correct', 'P']])
-        table.verticalHeader().setVisible(False)
-        for col_idx, (key, value) in enumerate([(k, v) for k, v in result.items() if k not in ['iteration', 'is_correct', 'P']]):
-            table.setItem(0, col_idx, QTableWidgetItem(f"{value:.6f}"))
-        table.resizeColumnsToContents()
+        # Data preparation
+        labels = [key for key in result.keys() if key not in ['iteration', 'is_correct', 'P']]
+        values = [f"{result[key]:.6f}" for key in labels]
 
-        layout.addWidget(table)
+        # Create a table in matplotlib
+        fig, ax = plt.subplots(figsize=(4, 2))
+        ax.axis('tight')
+        ax.axis('off')
+        ax.table(cellText=[values], colLabels=labels, cellLoc = 'center', loc='center', cellColours=[["#AAA9A9"] * len(values)])  # CMU Gray
+        ax.set_facecolor('#8C1515')  # CMU Cardinal Red
+        fig.patch.set_facecolor('#8C1515')
+        
+        fig.canvas.draw()
+        buf = fig.canvas.buffer_rgba()
+        
+        qimage = QImage(buf, buf.shape[1], buf.shape[0], QImage.Format_RGBA8888)
+        qpixmap = QPixmap.fromImage(qimage)
+        
+        plt.close(fig)
+        
+        # Create a label and set the pixmap
+        label = QLabel(self)
+        label.setPixmap(qpixmap)
+        layout.addWidget(label)
 
         if not result['is_correct']:
             latex_str = r"\phi^V \neq \phi^L, \text{so we will try a new pressure.} \; P_{\text{new}} = P_{\text{old}} \times \frac{\phi^L}{\phi^V}"
@@ -99,7 +113,7 @@ class VaporPressureWindow(QWidget):
             plt.rcParams['text.color'] = "#AAA9A9"  # CMU Gray
             
             # Create a figure with the specified DPI
-            fig, ax = plt.subplots(figsize=(5, .6), dpi=300)
+            fig, ax = plt.subplots(figsize=(4, .4), dpi=120)
             
             # Set background color
             fig.patch.set_facecolor('#8C1515')  # CMU Cardinal Red

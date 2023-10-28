@@ -7,7 +7,7 @@ from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as FigureCanva
 import matplotlib.pyplot as plt
 sys.path.append('/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/src')
 
-from peng_rob.core import *
+from src.ProblemCode.core import *
 
 
 

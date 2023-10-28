@@ -1,3 +1,40 @@
+"""
+Class containing methods for Peng-Robinson Equation of State calculations.
+
+Methods:
+- kappa(omega): Calculate kappa value based on acentric factor.
+- alpha(T, T_C, omega): Calculate alpha value.
+- a(T, T_C, P_C, omega): Calculate 'a' value for Peng-Robinson EOS.
+- da_dT(T, T_C, P_C, omega): Calculate derivative of 'a' with respect to temperature.
+- b(T_C, P_C): Calculate 'b' value for Peng-Robinson EOS.
+- A(a_val, P, T): Calculate 'A' value.
+- B(b_val, P, T): Calculate 'B' value.
+- compressibility_factor_eq(Z, A_val, B_val): Equation for compressibility factor Z.
+- roots_of_Z(A_val, B_val): Calculate the roots of the compressibility factor equation using scipy.
+"""
+
+"""
+Class for handling database operations.
+
+Methods:
+- get_substance_parameters(substance): Fetch substance parameters from the database.
+"""
+
+"""
+Calculate thermodynamic parameters.
+
+Args:
+- T: Temperature in Kelvin.
+- T_C: Critical temperature in Kelvin.
+- P_C: Critical pressure in Pascal.
+- omega: Acentric factor.
+
+Returns:
+- a_val: 'a' value for Peng-Robinson EOS.
+- b_val: 'b' value for Peng-Robinson EOS.
+- kappa_val: Kappa value based on acentric factor.
+"""
+
 import contextlib
 import pandas as pd
 import numpy as np
@@ -9,7 +46,7 @@ DB_PATH = "/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/db/pr
 
 class PengRobinsonEOS:
     """Class containing methods for Peng-Robinson Equation of State calculations."""
-    
+    R = 8.3144621  # Universal gas constant in J/(mol·K)
     @staticmethod
     def kappa(omega):
         """Calculate kappa value based on acentric factor."""
@@ -86,10 +123,3 @@ class DatabaseHandler:
         else:
             return None, None, None
 
-def calculate_parameters(T, T_C, P_C, omega, P):
-    """Calculate thermodynamic parameters."""
-    a_val = PengRobinsonEOS.a(T, T_C, P_C, omega)
-    b_val = PengRobinsonEOS.b(T_C, P_C)
-    A_val = PengRobinsonEOS.A(a_val, P, T)
-    B_val = PengRobinsonEOS.B(b_val, P, T)
-    return a_val, b_val, A_val, B_val
