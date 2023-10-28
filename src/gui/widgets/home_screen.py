@@ -1,18 +1,15 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit, QFormLayout, QTextBrowser, QPushButton, QTextBrowser
-from PyQt5.QtGui import QTextDocument, QFont, QPalette, QColor, QPainter, QLinearGradient, QTextCursor
-from PyQt5.QtCore import Qt
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-sys.path.append('/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/src')
-from ProblemCode.Find_P_With_Fugacity2 import find_pressure
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtGui import QImage, QPixmap
-
-from matplotlib.backends.backend_agg import FigureCanvasAgg
-import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('Agg')  # Set the backend to Agg
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QPalette, QColor, QPainter, QLinearGradient, QTextCursor, QImage, QPixmap
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit, QFormLayout, QTextBrowser
+sys.path.append('/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/src')
+from ProblemCode.Find_P_With_Fugacity import find_pressure
+matplotlib.use('Agg')  # Set the backend to Agg
+
 
 
 # ... [rest of your previous imports and code]
