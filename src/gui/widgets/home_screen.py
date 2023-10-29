@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout,
 from PyQt5.QtGui import QTextDocument, QFont, QPalette, QColor, QPainter, QLinearGradient, QTextCursor
 from PyQt5.QtCore import Qt
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-sys.path.append('/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/src')
-from ProblemCode.Find_P_With_Fugacity import find_pressure
+sys.path.append('/Users/mattmurphy/Thermodynamics')
+from src.ProblemCode.Find_P_With_Fugacity import find_pressure
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import QImage, QPixmap
 

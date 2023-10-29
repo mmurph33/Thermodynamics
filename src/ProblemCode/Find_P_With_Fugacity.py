@@ -73,7 +73,7 @@ Examples:
 import sys
 import numpy as np
 import math
-sys.path.append('/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/src')
+
 from core import PengRobinsonEOS, DatabaseHandler
 
 def phi(Z, A_val, B_val):
