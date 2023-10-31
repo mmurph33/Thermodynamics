@@ -73,7 +73,7 @@ Examples:
 import sys
 import numpy as np
 import math
-
+sys.path.append('/Users/mattmurphy/Thermodynamics/src/ProblemCode')
 from core import PengRobinsonEOS, DatabaseHandler
 
 def phi(Z, A_val, B_val):
@@ -96,6 +96,10 @@ def calculate_values(T, P, T_C, P_C, omega):
     phi_Zl_value = phi(Zl, A_val, B_val)
     return a_T, b_val, A_val, B_val, Z_values, Zv, Zl, phi_Zv_value, phi_Zl_value
 
+def percentage_difference(a, b):
+    """Calculate the percentage difference between two numbers."""
+    return abs(a - b) / ((a + b) / 2) * 100
+
 def find_pressure(T, substance_name, initial_guess=0.07e6, tolerance=1e-6, max_iterations=1000):
     T_C, P_C, omega = DatabaseHandler.get_substance_parameters(substance_name)
 
@@ -109,22 +113,26 @@ def find_pressure(T, substance_name, initial_guess=0.07e6, tolerance=1e-6, max_i
 
     for iteration in range(max_iterations):
         a_T, b_val, A_val, B_val, Z_values, Zv, Zl, phi_Zv_value, phi_Zl_value = calculate_values(T, P, T_C, P_C, omega)
+        
+        new_P = P * (phi_Zl_value / phi_Zv_value)
 
         results = {
             'iteration': iteration + 1,
             'P': P / 1e6,
             'A': A_val,
             'B': B_val,
-            'Zv': Zv,
-            'Zl': Zl,
-            'phi_Zv': phi_Zv_value,
-            'phi_Zl': phi_Zl_value,
-            'is_correct': abs(phi_Zv_value - phi_Zl_value) < tolerance,
+            'Z(V)': Zv,
+            'Z(L)': Zl,
+            'phi(V)': phi_Zv_value,
+            'phi(L)': phi_Zl_value,
+            '% Difference': percentage_difference(P, new_P),
+            'is_correct': abs(phi_Zv_value - phi_Zl_value) < tolerance
         }
         all_results.append(results)
 
         if results['is_correct']:
             break
-        P = P * (phi_Zl_value / phi_Zv_value)
+        P = new_P
 
+    print(all_results)
     return all_results

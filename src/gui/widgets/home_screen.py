@@ -1,13 +1,11 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QLineEdit, QFormLayout, QTextBrowser, QPushButton, QTextBrowser
-from PyQt5.QtGui import QTextDocument, QFont, QPalette, QColor, QPainter, QLinearGradient, QTextCursor
-from PyQt5.QtCore import Qt
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-sys.path.append('/Users/mattmurphy/Thermodynamics')
-from src.ProblemCode.Find_P_With_Fugacity import find_pressure
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QHBoxLayout, QLineEdit, QFormLayout, QPushButton
+from PyQt5.QtGui import QFont, QPalette, QColor, QPainter, QLinearGradient, QTextCursor, QIcon
+from PyQt5.QtCore import Qt, QSize
+sys.path.append('/Users/mattmurphy/Thermodynamics/src/ProblemCode')
+from Find_P_With_Fugacity import find_pressure
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import QImage, QPixmap
-
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.pyplot as plt
 import matplotlib
@@ -32,7 +30,9 @@ class VaporPressureWindow(QWidget):
         # Input Fields
         self.input_layout = QFormLayout()
         self.temperature_input = QLineEdit(self)
+        self.temperature_input.setMinimumHeight(40)  # Increase the minimum width of the widget
         self.substance_input = QLineEdit(self)
+        self.substance_input.setMinimumHeight(40)  # Increase the minimum width of the widget
         self.input_layout.addRow("Temperature (K):", self.temperature_input)
         self.input_layout.addRow("Substance:", self.substance_input)
         self.layout.addLayout(self.input_layout)
@@ -52,7 +52,7 @@ class VaporPressureWindow(QWidget):
         self.setPalette(palette)
 
         # Set font for the window
-        font = QFont("Times New Roman", 12)
+        font = QFont("Times New Roman", 32)
         self.setFont(font)
 
         # Style other widgets, like QLineEdit and QLabel, with the gray color
@@ -68,12 +68,52 @@ class VaporPressureWindow(QWidget):
         
         table = QTableWidget()
         table.setRowCount(1)
-        table.setColumnCount(len(result) - 3)  # excluding 'iteration', 'is_correct', and 'P'
-        table.setHorizontalHeaderLabels([key for key in result.keys() if key not in ['iteration', 'is_correct', 'P']])
+        table.setColumnCount(len(result) - 5)  # excluding 'iteration', 'is_correct', and 'P'
+        table.setHorizontalHeaderLabels([key for key in result.keys() if key not in ['iteration', 'is_correct', 'P', 'A', 'B']])
         table.verticalHeader().setVisible(False)
-        for col_idx, (key, value) in enumerate([(k, v) for k, v in result.items() if k not in ['iteration', 'is_correct', 'P']]):
-            table.setItem(0, col_idx, QTableWidgetItem(f"{value:.6f}"))
+        for col_idx, (key, value) in enumerate([(k, v) for k, v in result.items() if k not in ['iteration', 'is_correct', 'P', 'A', 'B']]):
+            item = QTableWidgetItem(f"{value:.6f}")
+            item.setTextAlignment(Qt.AlignCenter)
+            table.setItem(0, col_idx, item)
+        table.adjustSize()
         table.resizeColumnsToContents()
+        table.verticalHeader().setDefaultSectionSize(100)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        table.setStyleSheet("""
+    QTableWidget {
+        border: 2px solid #A2A4A3;
+        background-color: #D1D3D4; /* Light Grey for table background */
+        font-family: "Times New Roman";
+        font-size: 32px;
+        gridline-color: #A2A4A3;
+    }
+
+    QTableWidget::item {
+        border: none;
+        padding: 5px;
+        color: #000000; /* Black text color */
+    }
+
+    QTableWidget::item:selected {
+        background-color: #990000; /* Cardinal Red for selected items */
+        color: #FFFFFF; /* White text color */
+    }
+
+    QHeaderView::section, QTableWidget QHeaderView {
+        background-color: #660000; /* Darker shade of red for header background */
+        color: #FFFFFF; /* White text color */
+        border: none;
+        font-family: "Times New Roman";
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    QHeaderView::section:hover {
+        background-color: #A2A4A3; /* Gray when hovering over headers */
+    }
+""")
+
+
 
         layout.addWidget(table)
 
@@ -293,6 +333,7 @@ class ThermoAssistantHome(QMainWindow):
         # Window Setup
         self.setWindowTitle("Thermodynamics Assistant")
         self.setGeometry(100, 100, 800, 600)
+        self.showMaximized()
 
         # Custom Styling
         self.palette = QPalette()
@@ -309,7 +350,7 @@ class ThermoAssistantHome(QMainWindow):
 
         # Title
         title = QLabel("Thermodynamics Assistant")
-        title_font = QFont("Fira Code", 24, QFont.Bold)
+        title_font = QFont("Fira Code", 64, QFont.Bold)
         title.setFont(title_font)
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("color: red;")
@@ -323,35 +364,35 @@ class ThermoAssistantHome(QMainWindow):
     def setup_buttons(self, layout):
         # Molar Volume Button
         self.molar_volume_btn = QPushButton('Solve for Molar Volume', self)
-        self.molar_volume_btn.setFont(QFont("Fira Code", 14))
+        self.molar_volume_btn.setFont(QFont("Fira Code", 20))
         self.molar_volume_btn.setStyleSheet("background-color: red; color: black;")
         self.molar_volume_btn.clicked.connect(self.open_molar_volume_window)
         layout.addWidget(self.molar_volume_btn)
         
         # Enthalpy Button
         self.enthalpy_btn = QPushButton('Find Change in Enthalpy Using PREOS', self)
-        self.enthalpy_btn.setFont(QFont("Fira Code", 14))
+        self.enthalpy_btn.setFont(QFont("Fira Code", 20))
         self.enthalpy_btn.setStyleSheet("background-color: red; color: black;")
         self.enthalpy_btn.clicked.connect(self.open_enthalpy_window)
         layout.addWidget(self.enthalpy_btn)
         
         # Entropy Button
         self.entropy_btn = QPushButton('Find Change in Entropy Using PREOS', self)
-        self.entropy_btn.setFont(QFont("Fira Code", 14))
+        self.entropy_btn.setFont(QFont("Fira Code", 20))
         self.entropy_btn.setStyleSheet("background-color: red; color: black;")
         self.entropy_btn.clicked.connect(self.open_entropy_window)
         layout.addWidget(self.entropy_btn)
         
         # Vapor Pressure Button
         self.vapor_pressure_btn = QPushButton('Find Vapor Pressure in Phase Equilibrium', self)
-        self.vapor_pressure_btn.setFont(QFont("Fira Code", 14))
+        self.vapor_pressure_btn.setFont(QFont("Fira Code", 20))
         self.vapor_pressure_btn.setStyleSheet("background-color: red; color: black;")
         self.vapor_pressure_btn.clicked.connect(self.open_vapor_pressure_window)
         layout.addWidget(self.vapor_pressure_btn)
 
         # Thermo Properties Button
         self.thermo_properties_btn = QPushButton('Find Thermodynamics Properties of a Substance', self)
-        self.thermo_properties_btn.setFont(QFont("Fira Code", 14))
+        self.thermo_properties_btn.setFont(QFont("Fira Code", 20))
         self.thermo_properties_btn.setStyleSheet("background-color: red; color: black;")
         self.thermo_properties_btn.clicked.connect(self.open_thermo_properties_window)
         layout.addWidget(self.thermo_properties_btn)

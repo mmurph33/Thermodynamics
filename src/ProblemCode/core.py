@@ -42,7 +42,7 @@ import sqlite3
 from scipy.optimize import root_scalar
 
 R = 8.3144621  # Universal gas constant in J/(mol·K)
-DB_PATH = "/Users/mattmurphy/Thermodynamics_Assistant/ChemE_Helper_Program/db/properties_of_substances.db"
+DB_PATH = "/Users/mattmurphy/Thermodynamics/db/properties_of_substances.db"
 
 class PengRobinsonEOS:
     """Class containing methods for Peng-Robinson Equation of State calculations."""
